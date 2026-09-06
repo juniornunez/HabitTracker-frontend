@@ -12,7 +12,7 @@ export default function Home() {
         minHeight: '100vh',
       }}
     >
-      <Typography variant="h4" color="primary">
+      <Typography component="h1" variant="h4" color="primary">
         Habit Tracker
       </Typography>
       <Typography variant="body1" color="text.secondary">
