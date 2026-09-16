@@ -19,6 +19,7 @@ import {
   Habit,
   CreateHabitPayload,
 } from '@/lib/services/habits.service';
+import { habitSchema, getZodErrors } from '@/lib/validation';
 
 interface HabitDialogProps {
   open: boolean;
@@ -46,6 +47,7 @@ export default function HabitDialog({
 }: HabitDialogProps) {
   const [form, setForm] = useState<CreateHabitPayload>(initialForm);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   const isEditing = Boolean(habit);
@@ -66,6 +68,7 @@ export default function HabitDialog({
       setForm(initialForm);
     }
     setError('');
+    setFieldErrors({});
   }, [habit, open]);
 
   const handleChange = (field: keyof CreateHabitPayload, value: any) => {
@@ -74,10 +77,13 @@ export default function HabitDialog({
 
   const handleSubmit = async () => {
     setError('');
-    if (!form.nombre.trim()) {
-      setError('El nombre del hábito es obligatorio');
+
+    const errors = getZodErrors(habitSchema, form);
+    if (errors) {
+      setFieldErrors(errors);
       return;
     }
+    setFieldErrors({});
 
     const payload = {
       ...form,
@@ -124,9 +130,10 @@ export default function HabitDialog({
               label="Nombre del hábito"
               placeholder="Ej. Beber 2L de agua, Meditar, Estudiar..."
               fullWidth
-              required
               value={form.nombre}
               onChange={(e) => handleChange('nombre', e.target.value)}
+              error={Boolean(fieldErrors.nombre)}
+              helperText={fieldErrors.nombre}
             />
           </Grid>
           <Grid size={12}>
@@ -182,6 +189,8 @@ export default function HabitDialog({
               fullWidth
               value={form.fechaInicio}
               onChange={(e) => handleChange('fechaInicio', e.target.value)}
+              error={Boolean(fieldErrors.fechaInicio)}
+              helperText={fieldErrors.fechaInicio}
               slotProps={{ inputLabel: { shrink: true } }}
             />
           </Grid>

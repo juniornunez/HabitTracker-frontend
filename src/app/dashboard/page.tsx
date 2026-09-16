@@ -69,8 +69,7 @@ export default function DashboardPage() {
 
           <Alert severity="info" sx={{ mb: 3 }}>
             Las gráficas de progreso, rachas y porcentaje de cumplimiento se
-            habilitan cuando implementemos el seguimiento diario de hábitos
-            (próxima entrega).
+            habilitan cuando implementemos el seguimiento diario de habitos (Eso es del tercer avance)
           </Alert>
 
           <Card>

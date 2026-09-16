@@ -17,6 +17,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import NextLink from 'next/link';
 import { loginUser } from '@/lib/services/auth.service';
+import { loginSchema, getZodErrors } from '@/lib/validation';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,11 +25,20 @@ export default function LoginPage() {
   const [contraseña, setContraseña] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const errors = getZodErrors(loginSchema, { correo, contraseña });
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
+
     setLoading(true);
     try {
       const data = await loginUser({ correo, contraseña });
@@ -63,12 +73,13 @@ export default function LoginPage() {
             color="primary"
             gutterBottom
             sx={{ fontWeight: 700 }}
-    >
+          >
             Habit Tracker
-        </Typography>
-    <Typography variant="h6" align="center" sx={{ mb: 3 }}>
-        Iniciar sesión
-    </Typography>
+          </Typography>
+          <Typography variant="h6" align="center" sx={{ mb: 3 }}>
+            Iniciar sesión
+          </Typography>
+
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
@@ -80,19 +91,21 @@ export default function LoginPage() {
               label="Correo electrónico"
               type="email"
               fullWidth
-              required
               margin="normal"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
+              error={Boolean(fieldErrors.correo)}
+              helperText={fieldErrors.correo}
             />
             <TextField
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               fullWidth
-              required
               margin="normal"
               value={contraseña}
               onChange={(e) => setContraseña(e.target.value)}
+              error={Boolean(fieldErrors.contraseña)}
+              helperText={fieldErrors.contraseña}
               slotProps={{
                 input: {
                   endAdornment: (

@@ -17,6 +17,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import NextLink from 'next/link';
 import { registerUser } from '@/lib/services/auth.service';
+import { registerSchema, getZodErrors } from '@/lib/validation';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -27,21 +28,24 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (contraseña.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres');
+    const errors = getZodErrors(registerSchema, {
+      nombre,
+      correo,
+      contraseña,
+      confirmarContraseña,
+    });
+    if (errors) {
+      setFieldErrors(errors);
       return;
     }
-
-    if (contraseña !== confirmarContraseña) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
+    setFieldErrors({});
 
     setLoading(true);
     try {
@@ -95,29 +99,31 @@ export default function RegisterPage() {
             <TextField
               label="Nombre completo"
               fullWidth
-              required
               margin="normal"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              error={Boolean(fieldErrors.nombre)}
+              helperText={fieldErrors.nombre}
             />
             <TextField
               label="Correo electrónico"
               type="email"
               fullWidth
-              required
               margin="normal"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
+              error={Boolean(fieldErrors.correo)}
+              helperText={fieldErrors.correo}
             />
             <TextField
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               fullWidth
-              required
               margin="normal"
               value={contraseña}
               onChange={(e) => setContraseña(e.target.value)}
-              helperText="Mínimo 8 caracteres"
+              error={Boolean(fieldErrors.contraseña)}
+              helperText={fieldErrors.contraseña || 'Mínimo 8 caracteres'}
               slotProps={{
                 input: {
                   endAdornment: (
@@ -137,10 +143,11 @@ export default function RegisterPage() {
               label="Confirmar contraseña"
               type={showConfirmPassword ? 'text' : 'password'}
               fullWidth
-              required
               margin="normal"
               value={confirmarContraseña}
               onChange={(e) => setConfirmarContraseña(e.target.value)}
+              error={Boolean(fieldErrors.confirmarContraseña)}
+              helperText={fieldErrors.confirmarContraseña}
               slotProps={{
                 input: {
                   endAdornment: (
