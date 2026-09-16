@@ -42,8 +42,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await loginUser({ correo, contraseña });
-      localStorage.setItem('token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      sessionStorage.setItem('token', data.access_token);
+      sessionStorage.setItem('user', JSON.stringify(data.user));
       router.push('/dashboard');
     } catch (err: any) {
       setError(

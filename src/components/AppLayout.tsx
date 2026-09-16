@@ -47,7 +47,7 @@ export default function AppLayout({ children, pageTitle }: AppLayoutProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('user');
+    const stored = sessionStorage.getItem('user');
     if (stored) {
       const parsed = JSON.parse(stored);
       setUserName(parsed.nombre || 'Usuario');
@@ -58,8 +58,8 @@ export default function AppLayout({ children, pageTitle }: AppLayoutProps) {
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     router.push('/login');
   };
 
