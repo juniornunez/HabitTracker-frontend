@@ -32,7 +32,7 @@ export type RegisterFormData = z.infer<typeof registerSchema>;
 export const habitSchema = z.object({
   nombre: z.string().min(1, 'El nombre del hábito es obligatorio'),
   descripcion: z.string().optional(),
-  categoria: z.string().optional(),
+  categoria: z.enum(['Salud', 'Bienestar', 'Educación', 'Productividad']).optional(),
   frecuencia: z.enum(['diario', 'semanal', 'personalizada']),
   prioridad: z.number().int().min(1).max(3),
   fechaInicio: z.string().min(1, 'La fecha de inicio es obligatoria'),

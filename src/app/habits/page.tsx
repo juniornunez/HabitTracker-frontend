@@ -255,6 +255,10 @@ export default function HabitsPage() {
                           <Chip label="Inactivo" size="small" color="default" variant="outlined" />
                         )}
                       </Box>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        Desde {new Date(habit.fechaInicio).toLocaleDateString('es-HN')}
+                        {habit.fechaFin && ` hasta ${new Date(habit.fechaFin).toLocaleDateString('es-HN')}`}
+                      </Typography>
                     </Box>
                   </Box>
                   <IconButton onClick={(e) => handleOpenMenu(e, habit)}>

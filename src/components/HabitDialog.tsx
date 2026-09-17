@@ -11,6 +11,8 @@ import {
   Grid,
   IconButton,
   Alert,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -18,6 +20,7 @@ import {
   updateHabit,
   Habit,
   CreateHabitPayload,
+  CATEGORIAS,
 } from '@/lib/services/habits.service';
 import { habitSchema, getZodErrors } from '@/lib/validation';
 
@@ -31,7 +34,7 @@ interface HabitDialogProps {
 const initialForm: CreateHabitPayload = {
   nombre: '',
   descripcion: '',
-  categoria: '',
+  categoria: undefined,
   frecuencia: 'diario',
   prioridad: 1,
   fechaInicio: new Date().toISOString().slice(0, 10),
@@ -57,7 +60,7 @@ export default function HabitDialog({
       setForm({
         nombre: habit.nombre,
         descripcion: habit.descripcion || '',
-        categoria: habit.categoria || '',
+        categoria: habit.categoria,
         frecuencia: habit.frecuencia,
         prioridad: habit.prioridad,
         fechaInicio: habit.fechaInicio?.slice(0, 10) || initialForm.fechaInicio,
@@ -84,6 +87,11 @@ export default function HabitDialog({
       return;
     }
     setFieldErrors({});
+
+    if (form.fechaFin && form.fechaFin < form.fechaInicio) {
+      setFieldErrors({ fechaFin: 'La fecha de fin no puede ser anterior a la de inicio' });
+      return;
+    }
 
     const payload = {
       ...form,
@@ -147,14 +155,23 @@ export default function HabitDialog({
               onChange={(e) => handleChange('descripcion', e.target.value)}
             />
           </Grid>
-          <Grid size={12}>
+          <Grid size={{ xs: 6 }}>
             <TextField
+              select
               label="Categoría"
-              placeholder="Ej. Salud, Bienestar, Educación"
               fullWidth
-              value={form.categoria}
-              onChange={(e) => handleChange('categoria', e.target.value)}
-            />
+              value={form.categoria || ''}
+              onChange={(e) => handleChange('categoria', e.target.value || undefined)}
+            >
+              <MenuItem value="">
+                <em>Sin categoría</em>
+              </MenuItem>
+              {CATEGORIAS.map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
+              ))}
+            </TextField>
           </Grid>
           <Grid size={{ xs: 6 }}>
             <TextField
@@ -182,6 +199,17 @@ export default function HabitDialog({
               <MenuItem value="personalizada">Personalizada</MenuItem>
             </TextField>
           </Grid>
+          <Grid size={{ xs: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={Boolean(form.activo)}
+                  onChange={(e) => handleChange('activo', e.target.checked)}
+                />
+              }
+              label={form.activo ? 'Activo' : 'Inactivo'}
+            />
+          </Grid>
           <Grid size={{ xs: 6 }}>
             <TextField
               label="Fecha de inicio"
@@ -201,6 +229,8 @@ export default function HabitDialog({
               fullWidth
               value={form.fechaFin}
               onChange={(e) => handleChange('fechaFin', e.target.value)}
+              error={Boolean(fieldErrors.fechaFin)}
+              helperText={fieldErrors.fechaFin}
               slotProps={{ inputLabel: { shrink: true } }}
             />
           </Grid>

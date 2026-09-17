@@ -1,10 +1,13 @@
 import api from '../api';
 
+export const CATEGORIAS = ['Salud', 'Bienestar', 'Educación', 'Productividad'] as const;
+export type Categoria = (typeof CATEGORIAS)[number];
+
 export interface Habit {
   _id: string;
   nombre: string;
   descripcion?: string;
-  categoria?: string;
+  categoria?: Categoria;
   frecuencia: 'diario' | 'semanal' | 'personalizada';
   diasPersonalizados?: string[];
   prioridad: number;
@@ -19,7 +22,7 @@ export interface Habit {
 export interface CreateHabitPayload {
   nombre: string;
   descripcion?: string;
-  categoria?: string;
+  categoria?: Categoria;
   frecuencia: 'diario' | 'semanal' | 'personalizada';
   diasPersonalizados?: string[];
   prioridad?: number;
