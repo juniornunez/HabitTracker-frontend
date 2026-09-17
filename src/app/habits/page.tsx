@@ -25,8 +25,10 @@ import AppLayout from '@/components/AppLayout';
 import HabitDialog from '@/components/HabitDialog';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { getHabits, deleteHabit, Habit } from '@/lib/services/habits.service';
+import { getPriorityInfo } from '@/lib/priority';
 
 type StatusFilter = 'todos' | 'activos' | 'inactivos';
+type SortOption = 'prioridad-desc' | 'prioridad-asc' | 'nombre';
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -34,6 +36,7 @@ export default function HabitsPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos');
+  const [sortBy, setSortBy] = useState<SortOption>('prioridad-desc');
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
@@ -68,7 +71,7 @@ export default function HabitsPage() {
   }, []);
 
   const filteredHabits = useMemo(() => {
-    return habits.filter((habit) => {
+    const filtered = habits.filter((habit) => {
       const matchesSearch = habit.nombre
         .toLowerCase()
         .includes(search.toLowerCase());
@@ -78,7 +81,19 @@ export default function HabitsPage() {
         (statusFilter === 'inactivos' && !habit.activo);
       return matchesSearch && matchesStatus;
     });
-  }, [habits, search, statusFilter]);
+
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case 'prioridad-desc':
+        return sorted.sort((a, b) => b.prioridad - a.prioridad);
+      case 'prioridad-asc':
+        return sorted.sort((a, b) => a.prioridad - b.prioridad);
+      case 'nombre':
+        return sorted.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      default:
+        return sorted;
+    }
+  }, [habits, search, statusFilter, sortBy]);
 
   const handleOpenCreate = () => {
     setSelectedHabit(null);
@@ -151,6 +166,18 @@ export default function HabitsPage() {
           }}
           sx={{ flexGrow: 1, minWidth: 200 }}
         />
+        <TextField
+          select
+          size="small"
+          label="Ordenar por"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortOption)}
+          sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="prioridad-desc">Prioridad (alta primero)</MenuItem>
+          <MenuItem value="prioridad-asc">Prioridad (baja primero)</MenuItem>
+          <MenuItem value="nombre">Nombre (A-Z)</MenuItem>
+        </TextField>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -189,40 +216,54 @@ export default function HabitsPage() {
         </Card>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {filteredHabits.map((habit) => (
-            <Card key={habit._id}>
-              <CardContent
+          {filteredHabits.map((habit) => {
+            const priority = getPriorityInfo(habit.prioridad);
+            return (
+              <Card
+                key={habit._id}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  '&:last-child': { pb: 2 },
+                  borderLeft: '4px solid',
+                  borderLeftColor: `${priority.color}.main`,
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      {habit.nombre}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, mt: 0.5, alignItems: 'center' }}>
-                      {habit.categoria && (
-                        <Chip label={habit.categoria} size="small" />
-                      )}
-                      <Typography variant="caption" color="text.secondary">
-                        {habit.frecuencia}
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    '&:last-child': { pb: 2 },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {habit.nombre}
                       </Typography>
-                      {!habit.activo && (
-                        <Chip label="Inactivo" size="small" color="default" variant="outlined" />
-                      )}
+                      <Box sx={{ display: 'flex', gap: 1, mt: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                        {habit.categoria && (
+                          <Chip label={habit.categoria} size="small" />
+                        )}
+                        <Chip
+                          label={`Prioridad: ${priority.label}`}
+                          size="small"
+                          color={priority.color}
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          {habit.frecuencia}
+                        </Typography>
+                        {!habit.activo && (
+                          <Chip label="Inactivo" size="small" color="default" variant="outlined" />
+                        )}
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-                <IconButton onClick={(e) => handleOpenMenu(e, habit)}>
-                  <MoreVertIcon />
-                </IconButton>
-              </CardContent>
-            </Card>
-          ))}
+                  <IconButton onClick={(e) => handleOpenMenu(e, habit)}>
+                    <MoreVertIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            );
+          })}
         </Box>
       )}
 
