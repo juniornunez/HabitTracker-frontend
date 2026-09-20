@@ -88,12 +88,6 @@ export default function DashboardPage() {
             ))}
           </Grid>
 
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Las gráficas de progreso, rachas y porcentaje de cumplimiento se
-            habilitan cuando implementemos el seguimiento diario de hábitos
-            (próxima entrega).
-          </Alert>
-
           <Card>
             <CardContent>
               <Box

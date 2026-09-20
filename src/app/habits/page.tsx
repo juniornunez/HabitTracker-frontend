@@ -32,7 +32,7 @@ import {
 } from '@/lib/services/records.service';
 import { getPriorityInfo } from '@/lib/priority';
 import { classifyHabits, canCompleteToday, DIAS_SEMANA_LABELS, HabitTracking } from '@/lib/habitTracking';
-import { getHondurasDateString } from '@/lib/date';
+import { getHondurasDateString, getWeekStartString, getCurrentHondurasWeekStart } from '@/lib/date';
 
 type StatusFilter = 'todos' | 'activos' | 'inactivos';
 type SortOption = 'prioridad-desc' | 'prioridad-asc' | 'nombre';
@@ -70,6 +70,7 @@ export default function HabitsPage() {
 
   const loadTracking = useCallback(async (habitList: Habit[]) => {
     const today = getHondurasDateString();
+    const currentWeekStart = getCurrentHondurasWeekStart();
     const entries = await Promise.all(
       habitList.map(async (habit) => {
         try {
@@ -78,9 +79,14 @@ export default function HabitsPage() {
             getStreak(habit._id),
           ]);
           const completedRecords = history.filter((r) => r.completado);
-          const completadoHoy = completedRecords.some(
-            (r) => getHondurasDateString(new Date(r.fecha)) === today,
-          );
+
+          const completadoHoy =
+            habit.frecuencia === 'semanal'
+              ? completedRecords.some(
+                  (r) => getWeekStartString(r.fecha) === currentWeekStart,
+                )
+              : completedRecords.some((r) => r.fecha.slice(0, 10) === today);
+
           const ultimoCumplimiento = completedRecords.length
             ? completedRecords
                 .map((r) => r.fecha)
@@ -293,6 +299,8 @@ export default function HabitsPage() {
               onToggle={() => handleToggleToday(habit)}
               loading={togglingId === habit._id}
               canComplete={canCompleteToday(habit)}
+              periodLabel={habit.frecuencia === 'semanal' ? 'esta semana' : 'hoy'}
+              streakUnit={habit.frecuencia === 'semanal' ? 'semanas' : 'días'}
             />
           )}
         </CardContent>

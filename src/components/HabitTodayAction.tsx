@@ -10,6 +10,10 @@ interface HabitTodayActionProps {
   onToggle: () => void;
   loading?: boolean;
   canComplete: boolean;
+  /** "hoy" o "esta semana", según la frecuencia del hábito. */
+  periodLabel?: string;
+  /** "días" o "semanas", para la etiqueta de la racha. */
+  streakUnit?: string;
 }
 
 export default function HabitTodayAction({
@@ -17,6 +21,8 @@ export default function HabitTodayAction({
   onToggle,
   loading,
   canComplete,
+  periodLabel = 'hoy',
+  streakUnit = 'días',
 }: HabitTodayActionProps) {
   return (
     <Box
@@ -44,7 +50,9 @@ export default function HabitTodayAction({
           onClick={onToggle}
           disabled={loading}
         >
-          {tracking.completadoHoy ? 'Completado hoy' : 'Marcar como completado'}
+          {tracking.completadoHoy
+            ? `Completado ${periodLabel}`
+            : 'Marcar como completado'}
         </Button>
       ) : (
         <Typography variant="caption" color="text.secondary">
@@ -53,7 +61,7 @@ export default function HabitTodayAction({
       )}
 
       {tracking.rachaActual > 0 && (
-        <Tooltip title={`Mejor racha: ${tracking.mejorRacha} días`}>
+        <Tooltip title={`Mejor racha: ${tracking.mejorRacha} ${streakUnit}`}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
             <LocalFireDepartmentIcon fontSize="small" color="warning" />
             <Typography variant="body2" sx={{ fontWeight: 700 }}>
