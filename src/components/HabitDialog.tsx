@@ -13,6 +13,9 @@ import {
   Alert,
   FormControlLabel,
   Switch,
+  Box,
+  Chip,
+  Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -23,6 +26,8 @@ import {
   CATEGORIAS,
 } from '@/lib/services/habits.service';
 import { habitSchema, getZodErrors } from '@/lib/validation';
+import { DIAS_SEMANA, DIAS_SEMANA_LABELS, DiaSemana } from '@/lib/habitTracking';
+import { getHondurasDateString } from '@/lib/date';
 
 interface HabitDialogProps {
   open: boolean;
@@ -36,8 +41,9 @@ const initialForm: CreateHabitPayload = {
   descripcion: '',
   categoria: undefined,
   frecuencia: 'diario',
+  diasPersonalizados: [],
   prioridad: 1,
-  fechaInicio: new Date().toISOString().slice(0, 10),
+  fechaInicio: getHondurasDateString(),
   fechaFin: '',
   activo: true,
 };
@@ -62,6 +68,7 @@ export default function HabitDialog({
         descripcion: habit.descripcion || '',
         categoria: habit.categoria,
         frecuencia: habit.frecuencia,
+        diasPersonalizados: habit.diasPersonalizados || [],
         prioridad: habit.prioridad,
         fechaInicio: habit.fechaInicio?.slice(0, 10) || initialForm.fechaInicio,
         fechaFin: habit.fechaFin?.slice(0, 10) || '',
@@ -76,6 +83,19 @@ export default function HabitDialog({
 
   const handleChange = (field: keyof CreateHabitPayload, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const toggleDia = (dia: DiaSemana) => {
+    setForm((prev) => {
+      const current = prev.diasPersonalizados || [];
+      const exists = current.includes(dia);
+      return {
+        ...prev,
+        diasPersonalizados: exists
+          ? current.filter((d) => d !== dia)
+          : [...current, dia],
+      };
+    });
   };
 
   const handleSubmit = async () => {
@@ -93,11 +113,21 @@ export default function HabitDialog({
       return;
     }
 
+    if (
+      form.frecuencia === 'personalizada' &&
+      (!form.diasPersonalizados || form.diasPersonalizados.length === 0)
+    ) {
+      setError('Elegí al menos un día de la semana para la frecuencia personalizada');
+      return;
+    }
+
     const payload = {
       ...form,
       fechaFin: form.fechaFin || undefined,
       descripcion: form.descripcion || undefined,
       categoria: form.categoria || undefined,
+      diasPersonalizados:
+        form.frecuencia === 'personalizada' ? form.diasPersonalizados : undefined,
     };
 
     setLoading(true);
@@ -210,6 +240,29 @@ export default function HabitDialog({
               label={form.activo ? 'Activo' : 'Inactivo'}
             />
           </Grid>
+
+          {form.frecuencia === 'personalizada' && (
+            <Grid size={12}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                Días de la semana
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {DIAS_SEMANA.map((dia) => {
+                  const selected = (form.diasPersonalizados || []).includes(dia);
+                  return (
+                    <Chip
+                      key={dia}
+                      label={DIAS_SEMANA_LABELS[dia]}
+                      onClick={() => toggleDia(dia)}
+                      color={selected ? 'primary' : 'default'}
+                      variant={selected ? 'filled' : 'outlined'}
+                    />
+                  );
+                })}
+              </Box>
+            </Grid>
+          )}
+
           <Grid size={{ xs: 6 }}>
             <TextField
               label="Fecha de inicio"
