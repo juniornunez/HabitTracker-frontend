@@ -1,6 +1,7 @@
 import api from '../api';
 
 export interface RachaPorHabito {
+  habitId: string;
   nombre: string;
   categoria: string;
   rachaActual: number;
@@ -9,6 +10,11 @@ export interface RachaPorHabito {
 
 export interface ProgresoMensual {
   mes: string;
+  total: number;
+}
+
+export interface ProgresoSemanal {
+  dia: string;
   total: number;
 }
 
@@ -29,6 +35,9 @@ export interface Statistics {
   habitosActivos: number;
   habitosFinalizados: number;
   diasConsecutivos: number;
+  mejorRachaGlobal: number;
+  completadosHoy: number;
+  progresoSemanal: ProgresoSemanal[];
   progresoMensual: ProgresoMensual[];
   tendenciaCumplimiento: { completado: number; pendiente: number };
   rachasPorHabito: RachaPorHabito[];

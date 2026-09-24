@@ -123,7 +123,10 @@ export default function RegisterPage() {
               value={contraseña}
               onChange={(e) => setContraseña(e.target.value)}
               error={Boolean(fieldErrors.contraseña)}
-              helperText={fieldErrors.contraseña || 'Mínimo 8 caracteres'}
+              helperText={
+                fieldErrors.contraseña ||
+                'Mínimo 6 caracteres, con mayúscula, minúscula y un carácter especial'
+              }
               slotProps={{
                 input: {
                   endAdornment: (

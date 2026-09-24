@@ -19,6 +19,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartmentOutlined';
 import AppLayout from '@/components/AppLayout';
 import HabitDialog from '@/components/HabitDialog';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -252,9 +253,19 @@ export default function HabitsPage() {
         <CardContent sx={{ pb: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <Box>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                {habit.nombre}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  {habit.nombre}
+                </Typography>
+                {tracking && tracking.rachaActual > 0 && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2 }}>
+                    <LocalFireDepartmentIcon fontSize="small" color="warning" />
+                    <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                      {tracking.rachaActual}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
               <Box sx={{ display: 'flex', gap: 1, mt: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
                 {habit.categoria && <Chip label={habit.categoria} size="small" />}
                 <Chip
@@ -300,7 +311,6 @@ export default function HabitsPage() {
               loading={togglingId === habit._id}
               canComplete={canCompleteToday(habit)}
               periodLabel={habit.frecuencia === 'semanal' ? 'esta semana' : 'hoy'}
-              streakUnit={habit.frecuencia === 'semanal' ? 'semanas' : 'días'}
             />
           )}
         </CardContent>

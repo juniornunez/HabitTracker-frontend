@@ -10,6 +10,8 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+$/;
+
 export const registerSchema = z
   .object({
     nombre: z.string().min(1, 'El nombre es obligatorio'),
@@ -19,7 +21,11 @@ export const registerSchema = z
       .email('El correo no es válido'),
     contraseña: z
       .string()
-      .min(8, 'La contraseña debe tener al menos 8 caracteres'),
+      .min(6, 'La contraseña debe tener al menos 6 caracteres')
+      .regex(
+        PASSWORD_REGEX,
+        'Debe tener al menos una mayúscula, una minúscula y un carácter especial',
+      ),
     confirmarContraseña: z.string().min(1, 'Confirmá tu contraseña'),
   })
   .refine((data) => data.contraseña === data.confirmarContraseña, {
