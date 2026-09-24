@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Habit Tracker — Frontend
 
-## Getting Started
+Interfaz web del sistema de gestión de hábitos y metas personales **Habit Tracker**, desarrollada con Next.js y Material UI.
 
-First, run the development server:
+## Tecnologías utilizadas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js** (App Router) — framework de React
+- **Material UI (MUI)** — sistema de componentes y tema personalizado
+- **Zod** — validación de formularios en el cliente
+- **Axios** — cliente HTTP hacia la API
+- **Recharts** — gráficas del Dashboard y Estadísticas
+- **pnpm** — gestor de paquetes
+
+## Arquitectura
+
+```
+src/
+├── app/
+│   ├── login/            Página de inicio de sesión
+│   ├── register/          Página de registro
+│   ├── dashboard/         Dashboard con resumen y gráficas
+│   ├── habits/             Lista de hábitos (CRUD + seguimiento)
+│   ├── statistics/         Estadísticas y gráficas
+│   ├── profile/            Perfil del usuario y logros
+│   └── layout.tsx          Layout raíz (tema de Material UI)
+├── components/
+│   ├── AppLayout.tsx       Sidebar + navbar responsive, compartido por
+│   │                       Dashboard, Hábitos, Estadísticas y Perfil
+│   ├── HabitDialog.tsx     Diálogo de crear/editar hábito
+│   ├── HabitTodayAction.tsx  Botón de marcar hábito como completado
+│   └── ConfirmDialog.tsx   Diálogo de confirmación genérico
+├── lib/
+│   ├── api.ts               Cliente Axios con interceptor de JWT
+│   ├── validation.ts         Esquemas de validación con Zod
+│   ├── date.ts               Utilidades de fecha (zona horaria de Honduras)
+│   ├── priority.ts            Colores/etiquetas de prioridad
+│   ├── habitTracking.ts       Lógica de agrupamiento y días habilitados
+│   └── services/               Llamadas a la API (auth, habits, records,
+│                                statistics)
+└── theme/
+    ├── theme.ts               Tema personalizado de Material UI
+    └── ThemeRegistry.tsx       Provider del tema
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Diseño
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Paleta**: blanco y azul clarito como colores principales, con acentos de estado estándar (verde éxito, rojo error, ámbar advertencia)
+- **Tipografía**: Roboto (por defecto de Material UI)
+- **Componentes**: Cards, Diálogos, Snackbars, Alertas, Chips, Progress bars, Gráficas (Recharts)
+- **Responsive**: sidebar colapsable en mobile (menú hamburguesa), contenido con ancho máximo en pantallas grandes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Instalación y ejecución local
 
-## Learn More
+### 1. Requisitos previos
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 18+
+- pnpm
+- El backend de Habit Tracker corriendo (ver su propio README)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. Instalar dependencias
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm install
+```
 
-## Deploy on Vercel
+### 3. Configurar variables de entorno
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Creá un archivo `.env.local` en la raíz del proyecto con:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+Ajustalo si tu backend corre en otra URL/puerto.
+
+### 4. Levantar el servidor de desarrollo
+
+```bash
+pnpm run dev
+```
+
+La app queda disponible en `http://localhost:3000`.
+
+## Sesión
+
+El token JWT se guarda en `sessionStorage` (no `localStorage`), por lo que la sesión se cierra automáticamente al cerrar la pestaña/navegador, además de con el botón "Cerrar sesión" del menú de usuario.
+
+## Páginas principales
+
+| Ruta          | Descripción                                                       |
+| ------------- | ----------------------------------------------------------------- |
+| `/login`      | Inicio de sesión                                                  |
+| `/register`   | Registro de nuevo usuario                                         |
+| `/dashboard`  | Resumen de actividad, gráficas semanal y mensual                  |
+| `/habits`     | Gestión de hábitos (crear, editar, eliminar, marcar cumplimiento) |
+| `/statistics` | Estadísticas y gráficas de cumplimiento                           |
+| `/profile`    | Perfil del usuario y logros desbloqueados                         |
